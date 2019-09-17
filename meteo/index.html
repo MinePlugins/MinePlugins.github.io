@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="semantic.min.css">
+    <script src="jquery.min.js"></script>
+    <script src="semantic.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <meta charset="UTF-8">
+    <title>Controle Javascript</title>
+</head>
+<body>
+<style>
+    .hide{
+        display: none;
+    }
+</style>
+<div class="ui fixed menu">
+    <div class="ui container">
+        <a href="/" class="header item">
+            <!--<img class="logo" src="images/logo.png">-->
+            Météo
+        </a>
+        <a href="/" class="item">Page d'accueil</a>
+        <div class="ui category search item">
+            <div class="ui transparent icon input">
+                <input id="city" class="prompt" type="text" placeholder="Ville..." onkeypress="return runScript(event)">
+                <i class="search link icon" onclick="runSub();"></i>
+            </div>
+            <div class="results"></div>
+        </div>
+        <div class="ui right item">
+            <span id="time_span"></span>
+        </div>
+
+    </div>
+    
+</div>
+<div class="ui divider"></div>
+<br>
+<br>
+<div class="ui container">
+    <div id="weatherShow" class="ui segment hide">
+        <p id="errorShow"></p>
+
+        <div id="remove" class="ui three column grid hide">
+            <div id="weatherShow2" class="column">
+                <h2 id="title">Météo sur </h2>
+                <h4 style="text-transform: capitalize;" id="description"></h4>
+                <h4>Température : <strong id="temperature"></strong><i class="thermometer icon"></i></h4>
+
+            </div>
+            <div class="column">
+                <p>Lever du soleil : <strong id="lever"></strong><i class="sun icon"></i></p>
+                <p>Coucher du soleil : <strong id="coucher"></strong><i class="sun icon"></i></p>
+                <div class="divider"></div>
+                <p>Température minimum : <strong id="tmin"></strong><i class="thermometer icon"></i></p>
+                <p>Température maximum : <strong id="tmax"></strong><i class="thermometer icon"></i></p>
+                <p>Préssion Atmosphérique : <strong id="hpa"></strong><i class="tachometer alternate icon"></i></p>
+                <p>Humidité : <strong id="humidity"></strong><i class="umbrella icon"></i></p>
+            </div>
+            <div class="column">
+                <div id="windDirection" style="width: 200px; height: 200px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var api_key = "3641fec49bfe85e109464f12c4f15972";
+    timer();
+    function timer(){
+        var currentTime = new Date();
+        var hours = currentTime.getHours();
+        var minutes = currentTime.getMinutes();
+        var sec = currentTime.getSeconds();
+        if (minutes < 10){
+            minutes = "0" + minutes;
+        }
+        if (sec < 10){
+            sec = "0" + sec;
+        }
+        var t_str = hours + ":" + minutes + ":" + sec + " ";
+
+        document.getElementById('time_span').innerHTML = t_str;
+        setTimeout(timer,1000);
+    }
+    function runScript(e) {
+            if (e.keyCode === 13) {
+                var tb = document.getElementById("city");
+                getweatherdata(tb.value);
+            }
+        }
+    function runSub() {
+
+            var tb = document.getElementById("city");
+            getweatherdata(tb.value);
+
+    }
+
+    function getweatherdata(e) {
+        let city = e;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                document.getElementById("remove").classList.remove("hide");
+                document.getElementById("weatherShow").classList.remove("hide");
+                var rep = JSON.parse(this.responseText);
+                console.log(rep);
+                var lever = new Date(rep.sys.sunrise*1000);
+                var coucher = new Date(rep.sys.sunset*1000);
+                document.getElementById("title").innerText = "Météo sur " + city;
+                var div = document.getElementById("weatherShow2");
+                document.getElementById("description").innerText = rep.weather[0].description;
+                document.getElementById("lever").innerText = lever.getHours() + ":"+ lever.getMinutes();
+                document.getElementById("coucher").innerText = coucher.getHours() + ":" + coucher.getMinutes();
+                document.getElementById("tmin").innerText = rep.main.temp_min +"°C";
+                document.getElementById("temperature").innerText = rep.main.temp +"°C";
+                document.getElementById("tmax").innerText = rep.main.temp_max +"°C";
+                document.getElementById("hpa").innerText = rep.main.pressure +" hPa ";
+                document.getElementById("humidity").innerText = rep.main.humidity +" % ";
+                var icone = document.getElementById("icone");
+                if (icone){
+                    icone.remove();
+                }
+                div.innerHTML += "<img id=\"icone\" src=\"img/"+rep.weather[0].icon+".jpg\" width=\"150\" height=\"150\" alt=\""+rep.weather[0].description+"\" border=\"0\" onmouseover=\"this.src='img/"+rep.weather[0].icon+"s.jpg';return true;\" onmouseout=\"this.src='img/"+rep.weather[0].icon+".jpg';return true;\" />\n"
+                new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'windDirection',
+                        type: 'gauge',
+                        backgroundColor: 'transparent',
+                        plotBackgroundColor: null,
+                        plotBackgroundImage: null,
+                        plotBorderWidth: 0,
+                        plotShadow: false,
+                        spacingTop: 0,
+                        spacingLeft: 0,
+                        spacingRight: 0,
+                        spacingBottom: 0
+                    },
+                    title: {
+                        text: null
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    pane: {
+                        startAngle: 0,
+                        endAngle: 360,
+                    },
+                    exporting : {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: false
+                            },
+                            color: '#FFFFFF',
+                        },
+                        gauge: {
+                            dial: {
+                                radius: '90%',
+                                backgroundColor: 'silver',
+                                borderColor: 'silver',
+                                borderWidth: 1,
+                                baseWidth: 6,
+                                topWidth: 1,
+                                baseLength: '75%', // of radius
+                                rearLength: '15%'
+                            },
+                            pivot: {
+                                backgroundColor: 'white',
+                                radius: 0,
+                            }
+                        }
+                    },
+                    pane: {background: [{backgroundColor: 'transparent'}]},
+                    yAxis: {
+                        min: 0,
+                        max: 360,
+                        tickWidth: 2,
+                        tickLength: 10,
+                        tickColor: '#16a085',
+                        tickInterval: 90,
+                        lineColor: '#16a085',
+                        lineWidth: 4,
+                        labels: {
+                            formatter: function () {
+                                if (this.value == 360) {
+                                    return '<span style="color : #e74c3c;font-weight:bold;">N</span>';
+                                } else if (this.value == 90) {
+                                    return '<span style="color : #e74c3c;font-weight:bold;">E</span>';
+                                } else if (this.value == 180) {
+                                    return '<span style="color : #e74c3c;font-weight:bold;">S</span>';
+                                } else if (this.value == 270) {
+                                    return '<span style="color : #e74c3c;font-weight:bold;">W</span>';
+                                }
+                            }
+                        },
+                        title: {
+                            text: null
+                        }},
+                    series: [{
+                        name: 'Vent',
+                        data: [rep.wind.deg - 180]
+                    }]
+                });
+
+            } else if(this.readyState === 4 && this.status === 404) {
+                document.getElementById("weatherShow").classList.remove("hide");
+                var error = document.getElementById("errorShow");
+                error.innerText = "La ville n'a pas été trouvé"
+            }
+        };
+
+        xhttp.open("GET", "https://api.openweathermap.org/data/2.5/weather?q="+ city +"&appid="+ api_key +"&lang=fr&units=metric", true);
+        xhttp.send();
+    }
+
+</script>
+</body>
+</html>
