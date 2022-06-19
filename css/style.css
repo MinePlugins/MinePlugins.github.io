@@ -3,42 +3,58 @@
 	display: block;
 	overflow: hidden;
 }
+
 main {
 	position: relative;
 }
+
 body {
 	overflow-x: hidden;
 }
+
+.on {
+	position: absolute;
+	color: #fff;
+}
+
 .carousel-caption {
 	top: 20%;
 	bottom: none;
 }
+
 .over {
 	position: absolute;
 	height: 350px;
 	width: 100%;
 	top: 0px;
-	background:#222222;
+	background: #222222;
 	opacity: 0.70;
 }
+
 .padding-right {
 	padding-right: 10px;
 }
+
 .padding-top {
 	padding-top: 10px;
 }
+
 ul {
 	list-style-type: none;
 }
+
 .color {
 	background-color: #3d3d3d;
 }
+
 .text-white {
 	color: white;
 }
+
 .col-md-4 h5 {
 	padding-top: 10px;
 }
+
 .hr-white {
 	border-color: white;
 }
